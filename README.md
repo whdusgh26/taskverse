@@ -1,44 +1,26 @@
-Metaverse Collaboration Server (Node.js + WebSocket + GitHub API)
-
-Unity 기반 메타버스 협업 공간을 위한 백엔드 서버입니다.
-실시간 아바타 상호작용(채팅/화이트보드/슬라이드 동기화)과 GitHub 저장소 업로드(메모 .txt / 드로잉 .png) 를 지원하도록 설계되었습니다.
 
 🌟 현재 상태(Completed so far)
-
 Node.js 서버 초기화 및 실행 환경 구성
-
 express + ws 로 HTTP + WebSocket 서버 구현
-
 .gitignore/.env 로 보안/버전관리 체계 구축
-
 GitHub Personal Access Token 발급 & Octokit 연동 코드
-
 정적 테스트 페이지 public/test.html로 WS 브로드캐스트 확인
-
 개발용 실행(nodemon) 세팅 완료
 
 🧰 기술 스택
-
 Runtime: Node.js (v22.x)
-
 Server: Express, ws (WebSocket)
-
 Dev: nodemon, dotenv, morgan, cors
-
 GitHub API: Octokit (REST)
-
 Client(Test): Static HTML + JS (WebSocket)
 
 ✅ 선행 조건(Prerequisites)
 
 Node.js LTS 이상 설치 (node -v, npm -v)
-
 Git 설치 및 GitHub 계정 보유
-
 GitHub 저장소: taskverse 생성 완료
 
 🧭 상세 과정 (Step-by-step Log)
-
 아래는 실제로 수행한 명령/파일/검증 흐름을 순서대로 기록한 작업 로그입니다.
 
 1) 프로젝트 폴더 생성 & 이동
@@ -51,7 +33,6 @@ npm i -D nodemon
 
 3) Git 초기화 & .gitignore 작성
 git init
-
 
 .gitignore (중요: 비밀/대용량 파일 커밋 방지)
 
@@ -66,8 +47,6 @@ yarn-debug.log*
 
 4) 환경변수 파일 .env 생성
 
-절대 커밋 금지 (이미 .gitignore에 포함)
-
 PORT=4000
 GH_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 GH_OWNER=<your-github-username-or-org>
@@ -78,10 +57,10 @@ GH_BRANCH=main
 {
   "name": "metaverse-server",
   "version": "1.0.0",
-  "type": "module",
+  "type": "module",  // 이거 추가
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.js",  // 이 스크립트 부분 확인하기
     "dev": "nodemon --quiet server.js"
   }
 }
@@ -188,16 +167,12 @@ server.listen(PORT, () => {
 7) 개발 실행 (nodemon) 및 정상 기동 확인
 npm run dev
 
-
 콘솔 출력:
-
 HTTP  : http://localhost:4000
 WS    : ws://localhost:4000
 
 8) 헬스 체크
-
 브라우저에서:
-
 http://localhost:4000/health
 
 
@@ -262,7 +237,6 @@ http://localhost:4000/test.html
 10) GitHub 업로드 API 동작 테스트(옵션)
 
 PowerShell
-
 $BODY = @{
   path = "notes/hello.txt"
   contentBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("hello from server"))
@@ -272,7 +246,6 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:4000/upload" -ContentType 
 
 
 curl (mac/Linux/WSL)
-
 curl -X POST http://localhost:4000/upload \
   -H "Content-Type: application/json" \
   -d '{"path":"notes/hello.txt","contentBase64":"aGVsbG8gZnJvbSBzZXJ2ZXI=","message":"upload hello.txt from API"}'
@@ -293,15 +266,10 @@ metaverse-server/
 🔌 WebSocket 메시지 타입 (현재)
 
 welcome : 최초 접속 환영 { type, id, msg }
-
 presence:join / presence:leave : 참가자 입퇴장 { type, id }
-
 chat : 채팅 브로드캐스트 { type:"chat", from, text }
-
 whiteboard:op : 화이트보드 스트로크 공유 { type:"whiteboard:op", from, op }
-
 slide:goto : 발표 슬라이드 인덱스 동기화 { type:"slide:goto", page, from }
-
 echo : 정의되지 않은 타입 에코
 
 🔐 보안/비밀 관리
@@ -309,23 +277,9 @@ echo : 정의되지 않은 타입 에코
 .env는 절대 커밋 금지 (토큰 노출 방지)
 
 GH_TOKEN은 Fine-grained 토큰 권장
-
 Repository access: 특정 레포 선택
-
 Permissions → Contents: Read & Write
-
 토큰 노출 시 즉시 Revoke 후 재발급
 
-🛠️ 트러블슈팅
-
-Missing script: "dev"
-→ package.json의 scripts.dev 확인: "dev": "nodemon --quiet server.js"
-
-ERR_MODULE_NOT_FOUND: express
-→ npm i express 등 패키지 설치 확인
-
-포트 사용중(EADDRINUSE)
-→ netstat -ano | findstr :4000 → taskkill /PID <PID> /F
-
-업로드 401/404
-→ .env의 GH_TOKEN/GH_OWNER/GH_REPO/GH_BRANCH 값/권한 재확인
+.env.example 보고 .env 파일 만들기
+-> 토큰, 오너 수정 본인에 맞게
